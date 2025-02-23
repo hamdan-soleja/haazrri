@@ -37,7 +37,7 @@ Keeping track of student attendance while preventing proxies is a labor-intensiv
 
 ### Why It Prevents Proxy Attendance:
 
-- **Random FPS Mechanism**: The system sets a random FPS (between **20 and 30**) for each attendance session.  
+ 
 - **Synchronization Requirement**: The student's camera must match the generated FPS exactly.  
 - **Proxy Attempts via Video Calls Fail**:  
   - Video calls introduce **FPS fluctuations** due to network instability.  
