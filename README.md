@@ -93,7 +93,9 @@ conda env create -f environment.yml
 ```bash
 python app.py
 ``` 
+### Video demo
 
+**https://youtu.be/bQh4RiyBRRs?si=CO54W581eoYYxCn9**
 ---
 
 
