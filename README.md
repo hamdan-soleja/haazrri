@@ -11,9 +11,12 @@ Keeping track of student attendance while preventing proxies is a labor-intensiv
 
 - **Proxy Prevention** using FPS-based pattern matching  
 - **Email and Password Validation** for secure access  
-- **Role-Based Access Control** with separate functionalities for students and teachers  
+- **Role-Based Access Control** with separate functionalities for students and teachers
+- 
+- ## Future scope
 - **Dashboard** for efficient attendance tracking
-- **IP address based authentication** for preventing proxy login 
+- **IP address based authentication** for preventing proxy login
+- **Facial recognition** 
 
 ## 💡Anti-Proxy System
 
@@ -90,13 +93,6 @@ conda env create -f environment.yml
 ```bash
 python app.py
 ``` 
-or
-
-```bash
-export FLASK_APP=app
-export FLASK_DEBUG=1
-flask run
-```
 
 ---
 
