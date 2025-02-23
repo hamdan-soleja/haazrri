@@ -13,7 +13,7 @@ Keeping track of student attendance while preventing proxies is a labor-intensiv
 - **Email and Password Validation** for secure access  
 - **Role-Based Access Control** with separate functionalities for students and teachers
 - 
-- ## Future scope
+ ## ⚡Future scope
 - **Dashboard** for efficient attendance tracking
 - **IP address based authentication** for preventing proxy login
 - **Facial recognition** 
