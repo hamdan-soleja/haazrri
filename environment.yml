@@ -1,0 +1,13 @@
+name: my_flask_env  
+channels:
+  - defaults
+  - conda-forge  
+dependencies:
+  - python=3.12  # Adjust based on your Python version
+  - flask
+  - flask-sqlalchemy
+  - flask-login
+  - flask-wtf
+  - flask-bcrypt
+  - email-validator
+  - pip  
