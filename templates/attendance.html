@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+{% block title %}Attendance Recorder{% endblock %}
+{% block content %}
+
+<style>
+    /* Global Styles */
+    body {
+        background: linear-gradient(135deg, #000000, #121212);
+        color: white;
+        text-align: center;
+        font-family: 'Arial', sans-serif;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh; /* Adjusted to prevent navbar issues */
+    }
+
+    h2 {
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-weight: bold;
+        margin-bottom: 20px;
+    }
+
+    /* Timer Styling */
+    #timer {
+        font-size: 26px;
+        font-weight: bold;
+        margin-bottom: 15px;
+        color: #FFD700; /* Gold */
+        transition: color 0.3s ease-in-out;
+        text-shadow: 0 0 10px #D3D3D3;
+    }
+
+    /* Canvas Styling */
+    .canvas-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        max-width: 1000px;
+    }
+
+    canvas {
+        background-color: #000;
+        border: 2px solid white;
+        border-radius: 10px;
+        box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+        margin-bottom: 20px;
+        width: 100%;
+        max-width: 1000px;
+        height: auto;
+    }
+
+    /* Centering the Button */
+    #start {
+        display: block;
+        margin-top: 10px;
+        padding: 15px 40px;
+        font-size: 22px;
+        font-weight: bold;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.2);
+        border: 2px solid white;
+        color: white;
+        cursor: pointer;
+        transition: all 0.3s ease-in-out;
+        backdrop-filter: blur(8px);
+    }
+
+    /* Hover effect */
+    #start:hover {
+        background: rgba(255, 255, 255, 0.6);
+        color: black;
+        box-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
+    }
+
+    /* Click effect */
+    #start:active {
+        transform: scale(0.95);
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 600px) {
+        #timer {
+            font-size: 20px;
+        }
+
+        canvas {
+            width: 90%;
+        }
+
+        #start {
+            padding: 12px 30px;
+            font-size: 18px;
+        }
+    }
+</style>
+
+<h2>Attendance Code: {{ attID }}</h2>
+
+<!-- Timer display above the canvas -->
+<div id="timer">Start recording in 5 seconds</div>
+
+<!-- Centered Canvas -->
+<div class="canvas-container">
+    <canvas id="myCanvas" width="1000" height="500"></canvas>
+    <button id="start" onclick="startTimer()">Start</button>
+</div>
+
+<script>
+    function sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    async function generatePattern() {
+        var patt = JSON.parse('{{ pattern | tojson | safe }}');
+        var fps = {{ FPS }};
+        var waitTime = 1000.0 / fps;
+
+        var canvas = document.getElementById("myCanvas");
+        var ctx = canvas.getContext("2d");
+
+        ctx.fillStyle = "black";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        for (let p of patt) {
+            ctx.fillStyle = p == 1 ? "white" : "black";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            await sleep(waitTime);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+    }
+
+    let timeLeft = 5;
+
+    function drawTimer() {
+        let timerElement = document.getElementById("timer");
+        timerElement.innerText = "Start recording in " + timeLeft + " seconds";
+
+        // Change color dynamically
+        if (timeLeft <= 2) {
+            timerElement.style.color = "red";
+        } else if (timeLeft <= 4) {
+            timerElement.style.color = "orange";
+        } else {
+            timerElement.style.color = "#FFD700"; // Gold
+        }
+    }
+
+    function startTimer() {
+        drawTimer();
+        const timer = setInterval(() => {
+            if (timeLeft > 0) { // Prevent negative countdown
+                timeLeft--;
+                drawTimer();
+            } else {
+                clearInterval(timer); // Stop the countdown properly
+                generatePattern();
+            }
+        }, 1000);
+    }
+</script>
+
+{% endblock %}

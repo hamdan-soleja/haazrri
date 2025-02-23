@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}Verifying{% endblock %}
+
+{% block content %}
+<div class="verifying-container">
+    <h2>Verifying the pattern, Please wait...</h2>
+</div>
+
+<script>
+    // Auto-redirect after 3 seconds
+    setTimeout(function() {
+        window.location.href = "/final_result";  // Replace with actual verification result page
+    }, 3000);
+</script>
+
+<style>
+    .verifying-container {
+        max-width: 600px;
+        margin: 20px auto;
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        text-align: center;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        font-size: 20px;
+        font-weight: bold;
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenCV Video Capture & Upload</title>
+
+    <!-- ✅ Load OpenCV.js -->
+    <script async src="https://docs.opencv.org/master/opencv.js"></script>
+
+    <style>
+        /* ✅ Flash message styles */
+        .flash {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .flash.success { background-color: #28a745; color: white; }
+        .flash.danger { background-color: #dc3545; color: white; }
+        .flash.warning { background-color: #ffc107; color: black; }
+
+        /* ✅ Video container */
+        .video-container {
+            position: relative;
+            width: 640px;
+            height: 480px;
+            margin: auto;
+        }
+
+        /* ✅ Video styling */
+        video, canvas {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border: 2px solid black;
+        }
+
+        /* ✅ Center and Enlarge Buttons */
+        .button-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            font-size: 20px;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .btn.start { background-color: #28a745; color: white; }
+        .btn.stop { background-color: #dc3545; color: white; }
+        .btn:hover { opacity: 0.8; }
+    </style>
+</head>
+<body>
+
+    <!-- ✅ Flash messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div id="flash-messages">
+                {% for category, message in messages %}
+                    <div class="flash {{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- ✅ Video and Canvas -->
+    <div class="video-container">
+        <video id="video" autoplay playsinline></video>
+        <canvas id="canvas" style="display:none;"></canvas> <!-- Offscreen Canvas -->
+    </div>
+
+    <!-- ✅ Centered Buttons -->
+    <div class="button-container">
+        <button class="btn start" onclick="startRecording()">🎬 Start Recording</button>
+        <button class="btn stop" onclick="stopRecording()">⏹ Stop & Upload</button>
+    </div>
+
+    <script>
+        let stream;
+        let isRecording = false;
+        let frameArray = [];  // ✅ Stores captured frames
+        let FPS = 30;
+        let recordInterval;
+
+        async function startCamera() {
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({
+                    video: { frameRate: { ideal: FPS, max: FPS }, facingMode: "environment" },
+                    audio: false
+                });
+                document.getElementById('video').srcObject = stream;
+            } catch (err) {
+                console.error("❌ Error accessing camera:", err);
+            }
+        }
+
+        function startRecording() {
+            if (!stream) {
+                console.error("❌ Camera stream not available.");
+                return;
+            }
+
+            isRecording = true;
+            frameArray = [];  // ✅ Reset frame storage
+            console.log("🎥 Recording started...");
+
+            let flashMessageDiv = document.getElementById("flash-messages");
+            if (flashMessageDiv) {
+                flashMessageDiv.innerHTML = '<div class="flash success">🎬 Recording Started...</div>';
+                setTimeout(() => flashMessageDiv.innerHTML = '', 3000);
+            }
+
+            recordInterval = setInterval(captureFrame, 1000 / FPS);
+        }
+
+        function captureFrame() {
+            if (!isRecording) return;
+
+            let video = document.getElementById("video");
+            let canvas = document.getElementById("canvas");
+            let ctx = canvas.getContext("2d");
+
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            let frameData = canvas.toDataURL("image/webp");  // ✅ Store frame as base64
+            frameArray.push(frameData);
+
+            console.log(`📸 Captured frame ${frameArray.length}`);
+        }
+
+        async function stopRecording() {
+            if (!isRecording) return;
+            isRecording = false;
+            clearInterval(recordInterval);
+            console.log("⏹ Recording stopped. Frames captured:", frameArray.length);
+
+            stopCamera();
+            await uploadFrames();
+        }
+
+        function stopCamera() {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                document.getElementById('video').srcObject = null;
+                console.log("📷 Camera stopped.");
+            }
+        }
+
+        async function uploadFrames() {
+    if (frameArray.length === 0) {
+        console.error("❌ No frames to upload.");
+        return;
+    }
+
+    let formData = new FormData();
+    frameArray.forEach((frame, index) => {
+        formData.append(`frame_${index}`, frame);
+    });
+
+    try {
+        let response = await fetch('/upload_frames', {
+            method: 'POST',
+            body: formData
+        });
+
+        if (!response.ok) {
+            console.error("❌ Server returned an error:", response.status);
+            return;
+        }
+
+        let result = await response.json();
+        console.log("✅ Upload successful:", result);
+
+        if (result.redirect_url) {
+            console.log("🔄 Redirecting to:", result.redirect_url);
+            window.location.href = result.redirect_url;  // ✅ Ensure redirect
+        } else {
+            console.error("❌ Redirect URL missing in response.");
+        }
+
+    } catch (error) {
+        console.error("❌ Upload failed:", error);
+    }
+}
+
+
+        startCamera();
+    </script>
+
+</body>
+</html>

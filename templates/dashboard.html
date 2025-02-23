@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <h2 class="welcome-text">Welcome, {{ current_user.username }}!</h2>
+    
+    <!-- User Info Section -->
+    <div class="card user-info">
+        <h4>User Information</h4>
+        <p><strong>Username:</strong> {{ current_user.username }}</p>
+        <p><strong>Email:</strong> {{ current_user.email }}</p>
+        <p><strong>Role:</strong> {{ "Student" if current_user.role == "1" else "Teacher" }}</p>
+    </div>
+
+    {% if current_user.role == "1" %}
+    <!-- Student Form for Attendance -->
+    <div class="card form-container">
+        <h4>Mark Your Attendance</h4>
+        <form id="attendance-form" action="{{ url_for('video_capture') }}" method="POST" enctype="multipart/form-data">
+            {{ form.hidden_tag() }}
+
+            <div class="input-group">
+                <label>Attendance Code</label>
+                {{ form.username(class="form-control", placeholder="Enter attendance code") }}
+            </div>
+
+            <div class="input-group">
+                <label>Roll Number</label>
+                {{ form.roll_number(class="form-control", placeholder="Enter your roll number") }}
+            </div>
+
+            <input type="hidden" id="video-data" name="video">
+
+            <button type="submit" class="btn btn-primary">Mark Attendance</button>
+        </form>
+    </div>
+    {% else %}
+    <!-- Teacher Button -->
+    <a href="{{ url_for('attendance_') }}" class="btn btn-dark">Create Attendance</a>
+    {% endif %}
+</div>
+
+<!-- Styling -->
+<style>
+    /* Global Styles */
+    body {
+        background: #f4f6f9;
+        font-family: 'Arial', sans-serif;
+        margin: 0;
+        padding: 0;
+    }
+
+    /* Dashboard Container */
+    .dashboard-container {
+        max-width: 600px;
+        margin: 40px auto;
+        padding: 20px;
+        text-align: center;
+    }
+
+    /* Welcome Text */
+    .welcome-text {
+        font-size: 24px;
+        font-weight: bold;
+        color: #333;
+    }
+
+    /* Card Style */
+    .card {
+        background: white;
+        padding: 20px;
+        margin-top: 20px;
+        border-radius: 10px;
+        box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Form Styling */
+    .input-group {
+        margin-bottom: 15px;
+        text-align: left;
+    }
+
+    .input-group label {
+        font-weight: bold;
+        color: #555;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 10px;
+        margin-top: 5px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 16px;
+    }
+
+    /* Buttons */
+    .btn {
+        display: inline-block;
+        padding: 12px 20px;
+        font-size: 16px;
+        font-weight: bold;
+        text-transform: uppercase;
+        text-decoration: none;
+        border-radius: 5px;
+        margin-top: 10px;
+        transition: all 0.3s ease-in-out;
+    }
+
+    .btn-primary {
+        background-color: #007BFF;
+        color: white;
+        border: none;
+    }
+
+    .btn-primary:hover {
+        background-color: #0056b3;
+    }
+
+    .btn-dark {
+        background-color: #343a40;
+        color: white;
+    }
+
+    .btn-dark:hover {
+        background-color: #23272b;
+    }
+</style>
+
+{% endblock %}
